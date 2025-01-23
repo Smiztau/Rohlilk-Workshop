@@ -5,10 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 from utils import get_train_val_masks
 import matplotlib.pyplot as plt
+import os
 
 # Read the entire dataset
-df_train = pd.read_csv('merged_data_train.csv')
-df_test = pd.read_csv('merged_data_test.csv')
+df_train = pd.read_csv('csv_junk/merged_data_train.csv')
+df_test = pd.read_csv('csv_junk/merged_data_test.csv')
 
 # Prepare the feature set (X) and target (y)
 X = df_train.drop(['sales', 'weight'], axis=1)
@@ -47,6 +48,8 @@ df_sales = pd.DataFrame({
     "id": id_series,        # first column
     "sales_hat": y_pred_test    # second column
 })
-df_sales.to_csv("submission4.csv", index=False)
 
-booster.save_model("xgboost_model_test.json")
+os.makedirs("submissions", exist_ok=True)
+df_sales.to_csv("submissions/submission4.csv", index=False)
+os.makedirs("models", exist_ok=True)
+booster.save_model("models/xgboost_model_test.json")

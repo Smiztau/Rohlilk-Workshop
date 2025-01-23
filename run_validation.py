@@ -9,7 +9,7 @@ total_wmae = 0
 cnt = 0
 
 # Read the entire dataset
-df_train = pd.read_csv('merged_data_train.csv')
+df_train = pd.read_csv('csv_junk/merged_data_train.csv')
 
 # Prepare the feature set (X) and target (y)
 X = df_train.drop(['sales', 'weight'], axis=1)

@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
+import os
 
-    
+input_folder = "csv_input"
+output_folder = "csv_junk"
 isTrain = 0
 if(isTrain):
     fileName = 'sales_train.csv'
@@ -16,9 +18,9 @@ encoder = LabelEncoder()
 
 # Load CSV file
 df_sales = pd.read_csv(fileName)
-df_inventory = pd.read_csv('inventory.csv')
-df_calender = pd.read_csv('calendar.csv')
-df_weights = pd.read_csv('test_weights.csv')
+df_inventory = pd.read_csv(input_folder+'/inventory.csv')
+df_calender = pd.read_csv(input_folder+'/calendar.csv')
+df_weights = pd.read_csv(input_folder+'/test_weights.csv')
 
 # df_calender['holiday_name'].fillna("-", inplace = True)
 df_inventory.drop('warehouse', axis=1, inplace=True)
@@ -26,7 +28,7 @@ df = pd.merge(df_sales, df_inventory, on='unique_id', how='left')
 
 if(isTrain):
     labels = df_sales["sales"]
-    labels.to_csv('train_labels.csv', index= False)
+    labels.to_csv(input_folder+'/train_labels.csv', index= False)
     df = pd.merge(df, df_weights, on='unique_id', how = 'left')
     df = df.dropna(subset=['sales'])
     df.drop('availability', axis=1, inplace=True)
@@ -83,6 +85,6 @@ df['warehouse'] = encoder.fit_transform(df['warehouse'])
 ##### to remove
 df.drop('holiday_name', axis=1, inplace=True)
 ##### 
-
-df.to_csv(fileOutName, index=False)
+os.makedirs(output_folder, exist_ok=True)
+df.to_csv(output_folder+"/"+fileOutName, index=False)
 print("<<<<<<<<<<<<<<<<<<<<FINISH>>>>>>>>>>>>>>>>>>>")
