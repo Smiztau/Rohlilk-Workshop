@@ -10,6 +10,8 @@ cnt = 0
 
 # Read the entire dataset
 df_train = pd.read_csv('csv_junk/merged_data_train.csv')
+df_test = pd.read_csv('csv_junk/merged_data_test.csv')
+
 
 # Prepare the feature set (X) and target (y)
 X = df_train.drop(['sales', 'weight'], axis=1)
@@ -37,6 +39,8 @@ for (train_end, val_start, val_end) in splits:
     # Get boolean masks for train and validation
     train_mask, val_mask = get_train_val_masks(X, train_end, val_start, val_end)
     for warehouse in warehouses:
+        warehouse_weight = len(df_test[df_test['warehouse'] == warehouse])/len(df_test)
+        print(warehouse_weight,'HEY')
         warehouse_train_mask = train_mask & (X['warehouse'] == warehouse)
         warehouse_val_mask = val_mask & (X['warehouse'] == warehouse)
         # Subset your features, target, and weights accordingly
@@ -66,12 +70,12 @@ for (train_end, val_start, val_end) in splits:
         results.append({
             'month': val_end[1],
             'warehouse': warehouse,
-            'wmae': wmae
+            'wmae': wmae * warehouse_weight
         })
         print("VALIDATION of warhouse " + warehouse + " of month " + str(val_end[1]) + " Set WMAE:", wmae)
 
 
-avg_wmae = np.mean([res['wmae'] for res in results])
+avg_wmae = np.sum([res['wmae'] for res in results])/3
 print(f"Average WMAE across all warehouses and splits: {avg_wmae}")
 
 

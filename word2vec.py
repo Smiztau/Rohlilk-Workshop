@@ -9,7 +9,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Load your corpus (the .txt file)
-with open("curr_corpus.txt", "r", encoding="utf-8") as file:
+with open("only_second_corpus.txt", "r", encoding="utf-8") as file:
     text = file.read()
 
 text = text.lower()
