@@ -6,7 +6,7 @@ import os
 
 input_folder = "csv_input"
 output_folder = "csv_junk"
-isTrain = 0
+isTrain = 1
 if(isTrain):
     fileName = 'sales_train.csv'
     fileOutName = 'merged_data_train.csv'
@@ -35,7 +35,7 @@ if(isTrain):
     df = df.dropna(subset=['sales'])
     df.drop('availability', axis=1, inplace=True)
 
-df['warehouse_city'] = df['warehouse'].str.split('_').str[-1]
+# df['warehouse_city'] = df['warehouse'].str.split('_').str[-1]
 # df.drop('warehouse', axis=1, inplace=True)
 # df['warehouse_number'] = pd.to_numeric(df['warehouse_number'])
 df[['name_only', 'name_number']] = df['name'].str.split('_', expand=True)
@@ -90,11 +90,11 @@ df_calender.drop('date', axis=1, inplace=True)
 df_calender['is_holiday'] = (df_calender['holiday'] | df_calender['winter_school_holidays'] | df_calender['school_holidays']).astype(int)
 df = pd.merge(df, df_calender, on=['day', 'month', 'year','warehouse'], how='left')
 
-df = pd.merge(df, df_word2vec, on=["name_only"])
+df = pd.merge(df, df_word2vec, on=["name_only"], how='left')
 df.drop('name_only', axis=1, inplace=True)
 
-df = pd.get_dummies(df, columns=['warehouse_city', 'L1_category_name_en'])
-df['warehouse'] = encoder.fit_transform(df['warehouse'])
+df = pd.get_dummies(df, columns=['L1_category_name_en'])
+# df['warehouse'] = encoder.fit_transform(df['warehouse'])
 
 
 ##### to remove

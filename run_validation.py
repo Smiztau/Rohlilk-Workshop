@@ -15,6 +15,8 @@ df_train = pd.read_csv('csv_junk/merged_data_train.csv')
 X = df_train.drop(['sales', 'weight'], axis=1)
 y = df_train['sales']
 sample_weights = df_train['weight']
+warehouses = X['warehouse'].unique()
+
 # Set parameters for the models
 params = {
     'objective': 'reg:squarederror',
@@ -24,63 +26,59 @@ params = {
     'silent': 1
 }
 
-# Each item in 'splits' is ((train_end), (val_start), (val_end))
-# For example, if you want:
-#   - Iteration 1: train up to Mar 2,   validate Mar 3 - Mar 16
-#   - Iteration 2: train up to Apr 2,  validate Apr 3 - Apr 16
-#   - Iteration 3: train up to May 2,  validate May 3 - May 16
-# just adjust the tuples below.
 splits = [
     ((2024, 3, 2),  (2024, 3, 3),  (2024, 3, 16)),  # Iteration 1
     ((2024, 4, 2),  (2024, 4, 3),  (2024, 4, 16)),  # Iteration 2
     ((2024, 5, 2),  (2024, 5, 3),  (2024, 5, 16)),  # Iteration 3
 ]
 
-train_val_sets = []
+results = []
 for (train_end, val_start, val_end) in splits:
     # Get boolean masks for train and validation
     train_mask, val_mask = get_train_val_masks(X, train_end, val_start, val_end)
+    for warehouse in warehouses:
+        warehouse_train_mask = train_mask & (X['warehouse'] == warehouse)
+        warehouse_val_mask = val_mask & (X['warehouse'] == warehouse)
+        # Subset your features, target, and weights accordingly
+        X_train = X[warehouse_train_mask]
+        X_train.drop('warehouse', axis=1, inplace=True)
+        y_train = y[warehouse_train_mask]
+        w_train = sample_weights[warehouse_train_mask]
     
-    # Subset your features, target, and weights accordingly
-    X_train = X[train_mask]
-    y_train = y[train_mask]
-    w_train = sample_weights[train_mask]
-    
-    X_val = X[val_mask]
-    y_val = y[val_mask]
-    w_val = sample_weights[val_mask]
-    dtrain = xgb.DMatrix(X_train, label=y_train, weight=w_train)
-    dvalidation = xgb.DMatrix(X_val, label=y_val, weight=w_val)
-    evals = [(dtrain, 'train_' + str(val_end[1])), (dvalidation, 'validation' + str(val_end[1]))]
+        X_val = X[warehouse_val_mask]
+        X_val.drop('warehouse', axis=1, inplace=True)
+        y_val = y[warehouse_val_mask]
+        w_val = sample_weights[warehouse_val_mask]
 
-    booster = xgb.train(params, dtrain, num_boost_round=150, evals=evals, verbose_eval=True)
-    # Predict on test set
-    y_pred_validation = booster.predict(dvalidation)
-    wmae = mean_absolute_error(y_val, y_pred_validation, sample_weight=w_val)
-    total_wmae += wmae
-    cnt +=1
-    print("VALIDATION " + str(val_end[1]) + " Set WMAE:", wmae)
-    print("X shape:", X.shape)
-    print("X_train shape:", X_train.shape)
-    print("X_validation shape:", X_val.shape)
-    print("y shape:", y.shape)
-    print("y_train shape:", y_train.shape)
-    print("y_validation shape:", y_val.shape)
+        # Check if we have enough data to train and validate
+        if X_train.shape[0] == 0 or X_val.shape[0] == 0:
+            print(f"Skipping warehouse {warehouse} for split ending {val_end} due to insufficient data.")
+            continue
+        
+        dtrain = xgb.DMatrix(X_train, label=y_train, weight=w_train)
+        dvalidation = xgb.DMatrix(X_val, label=y_val, weight=w_val)
+        evals = [(dtrain, f'train_{warehouse}_{val_end[1]}'), (dvalidation, f'validation_{warehouse}_{val_end[1]}')]
 
-print("AVG WMAE:", total_wmae/cnt)
+        booster = xgb.train(params, dtrain, num_boost_round=150, evals=evals, verbose_eval=True)
+        # Predict on test set
+        y_pred_validation = booster.predict(dvalidation)
+        wmae = mean_absolute_error(y_val, y_pred_validation, sample_weight=w_val)
+        results.append({
+            'month': val_end[1],
+            'warehouse': warehouse,
+            'wmae': wmae
+        })
+        print("VALIDATION of warhouse " + warehouse + " of month " + str(val_end[1]) + " Set WMAE:", wmae)
 
-# booster.save_model("xgboost_model_validation.json")
 
-# # Example usage: you could loop over them to train/evaluate
-# for i, (X_tr, y_tr, w_tr, X_val, y_val, w_val) in enumerate(train_val_sets, 1):
-#     print(f"---- Iteration {i} ----")
-#     print(f"Train set size: {len(X_tr)}")
-#     print(f"Validation set size: {len(X_val)}")
-#     # train a model, for example:
-#     # model = SomeRegressor().fit(X_tr, y_tr, sample_weight=w_tr)
-#     # val_predictions = model.predict(X_val)
-#     # evaluate performance, etc.
+avg_wmae = np.mean([res['wmae'] for res in results])
+print(f"Average WMAE across all warehouses and splits: {avg_wmae}")
 
-# 3741570
-# 3847199
-# 3950082
+
+
+    # print("X shape:", X.shape)
+    # print("X_train shape:", X_train.shape)
+    # print("X_validation shape:", X_val.shape)
+    # print("y shape:", y.shape)
+    # print("y_train shape:", y_train.shape)
+    # print("y_validation shape:", y_val.shape)
