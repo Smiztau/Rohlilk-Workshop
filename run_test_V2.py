@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import os
 import utils
 
+print(utils.depth)
+print(utils.max_iter)
 
 # Read the entire dataset
 df_train = pd.read_csv('csv_junk/merged_data_train.csv')

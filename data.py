@@ -38,7 +38,6 @@ if(isTrain):
 
 df[['name_only', 'name_number']] = df['name'].str.split('_', expand=True)
 df.drop('name', axis=1, inplace=True)
-# df['name_number'] = pd.to_numeric(df['name_number'])
 df['L2_category_name_en'] = df['L2_category_name_en'].str.split('_').str[-1]
 df['L2_category_name_en'] = pd.to_numeric(df['L2_category_name_en'])
 df['L3_category_name_en'] = df['L3_category_name_en'].str.split('_').str[-1]
@@ -76,7 +75,7 @@ df['day_sin'] = np.sin(2 * np.pi * df['day']/12)
 # df['days_since_first_sale'] = (pd.to_datetime(df['date']) - df.groupby('unique_id')['date'].transform('min')).dt.days
 
 # ##########################################
-# df.sort_values(['unique_id', 'date'], inplace=True)
+df.sort_values(['unique_id', 'date'], inplace=True)
 
 # # Rolling Average Price (Last 2 Days) with fallback to Window=1
 # df['rolling_avg_price'] = (

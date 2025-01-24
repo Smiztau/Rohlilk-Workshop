@@ -1,4 +1,4 @@
-depth = 12
+depth = 15
 max_iter = 150
 
 
