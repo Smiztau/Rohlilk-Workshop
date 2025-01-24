@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 import os
@@ -17,7 +18,7 @@ else:
 encoder = LabelEncoder()
 
 # Load CSV file
-df_sales = pd.read_csv(fileName)
+df_sales = pd.read_csv(input_folder+"/"+fileName)
 df_inventory = pd.read_csv(input_folder+'/inventory.csv')
 df_calender = pd.read_csv(input_folder+'/calendar.csv')
 df_weights = pd.read_csv(input_folder+'/test_weights.csv')
@@ -66,6 +67,15 @@ df["week_of_the_month"] = ((df["date"].dt.day - 1) // 7) + 1
 df['day'] = df['date'].dt.day
 df['month'] = df['date'].dt.month
 df['year'] = df['date'].dt.year
+corona_start_date = '01-01-2021'
+corona_end_date   = '01-06-2022'
+
+df['corona_virus'] = df['date'].between(corona_start_date, corona_end_date)
+df['month_cos'] = np.cos(2 * np.pi * df['month']/12)
+df['month_sin'] = np.sin(2 * np.pi * df['month']/12)
+df['day_cos'] = np.cos(2 * np.pi * df['day']/12)
+df['day_sin'] = np.sin(2 * np.pi * df['day']/12)
+
 df.drop('date', axis=1, inplace=True)
 
 
@@ -76,6 +86,7 @@ df_calender['day'] = df_calender['date'].dt.day
 df_calender['month'] = df_calender['date'].dt.month
 df_calender['year'] = df_calender['date'].dt.year
 df_calender.drop('date', axis=1, inplace=True)
+df_calender['is_holiday'] = (df_calender['holiday'] | df_calender['winter_school_holidays'] | df_calender['school_holidays']).astype(int)
 df = pd.merge(df, df_calender, on=['day', 'month', 'year','warehouse'], how='left')
 
 df = pd.get_dummies(df, columns=['warehouse_city', 'L1_category_name_en'])
