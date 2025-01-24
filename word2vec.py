@@ -60,10 +60,6 @@ for plural, singular in items_dict_plural.items():
         # Replace plural with singular, ensuring correct case
         text = text.replace(plural, singular)
 
-with open("corpus_edited.txt", "w") as file:
-    file.write(text)
-
-
 # Tokenize the text into sentences
 sentences = text.splitlines()
 
@@ -83,9 +79,6 @@ processed_sentences = [preprocess_sentence(sentence) for sentence in sentences]
 print("start word to vec")
 model = Word2Vec(processed_sentences, vector_size=2, window=5, min_count=1, sg=0)
 
-# Save the model
-model.save("word2vec_model.model")
-
 
 # Create dictionary with keys and values as lowercase letters only, and no spaces or underscores
 items_dict = {item: item.lower().replace(" ", "").replace("_", "") for item in items}
@@ -93,6 +86,7 @@ items_dict = {item: item.lower().replace(" ", "").replace("_", "") for item in i
 items_dict["Mix meat"] = "meat"
 items_dict["Mangosteen"] = "mangoteen"
 items_dict["Soybean sprout"] = "soybeanprout"
+items_dict["Toust"] = "toast"
 data_to_write = []
 
 for key, value in items_dict.items():
@@ -110,13 +104,13 @@ for key, value in items_dict.items():
         print(f"Embedding for '{value}' not found in the model!")
 
 # Write data to CSV
-output_csv = 'food_embeddings.csv'
+output_csv = 'csv_junk/food_embeddings.csv'
 
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     
     # Write the header row
-    writer.writerow(['Food Name', 'Embedding Component 1', 'Embedding Component 2'])
+    writer.writerow(['name_only', 'Embedding Component 1', 'Embedding Component 2'])
     
     # Write the data
     writer.writerows(data_to_write)
