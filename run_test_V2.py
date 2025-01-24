@@ -6,6 +6,7 @@ from sklearn.metrics import mean_absolute_error
 from utils import get_train_val_masks
 import matplotlib.pyplot as plt
 import os
+import utils
 
 
 # Read the entire dataset
@@ -23,7 +24,7 @@ params = {
     'objective': 'reg:squarederror',
     'eval_metric': 'mae',
     'learning_rate': 0.1,
-    'max_depth': 12,
+    'max_depth': utils.depth,
     'silent': 1
 }
 
@@ -50,7 +51,7 @@ for warehouse in warehouses:
     dtest = xgb.DMatrix(X_test)
     evals = [(dtrain, f'train_{warehouse}')]
 
-    booster = xgb.train(params, dtrain, num_boost_round=150, evals=evals, verbose_eval=True)
+    booster = xgb.train(params, dtrain, num_boost_round=utils.max_iter, evals=evals, verbose_eval=True)
 
     # Predict on test set
     y_pred_test = booster.predict(dtest)

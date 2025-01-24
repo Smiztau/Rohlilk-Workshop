@@ -1,3 +1,7 @@
+depth = 12
+max_iter = 150
+
+
 def get_train_val_masks(X, train_end, val_start, val_end):
     """
     Generate boolean masks for training and validation based on date cutoffs.
@@ -41,3 +45,13 @@ def get_train_val_masks(X, train_end, val_start, val_end):
     )
     
     return train_mask, val_mask
+
+def get_season(month):
+    if month in [12, 1, 2]:
+        return 1
+    elif month in [3, 4, 5]:
+        return 2
+    elif month in [6, 7, 8]:
+        return 3
+    else:
+        return 4

@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 import os
+from utils import get_season
 
 input_folder = "csv_input"
 output_folder = "csv_junk"
@@ -35,14 +36,9 @@ if(isTrain):
     df = df.dropna(subset=['sales'])
     df.drop('availability', axis=1, inplace=True)
 
-# df['warehouse_city'] = df['warehouse'].str.split('_').str[-1]
-# df.drop('warehouse', axis=1, inplace=True)
-# df['warehouse_number'] = pd.to_numeric(df['warehouse_number'])
 df[['name_only', 'name_number']] = df['name'].str.split('_', expand=True)
 df.drop('name', axis=1, inplace=True)
-df['name_number'] = pd.to_numeric(df['name_number'])
-# df['name_only'] = encoder.fit_transform(df['name_only'])
-# df['L1_category_name_en'] = encoder.fit_transform(df['L1_category_name_en'])
+# df['name_number'] = pd.to_numeric(df['name_number'])
 df['L2_category_name_en'] = df['L2_category_name_en'].str.split('_').str[-1]
 df['L2_category_name_en'] = pd.to_numeric(df['L2_category_name_en'])
 df['L3_category_name_en'] = df['L3_category_name_en'].str.split('_').str[-1]
@@ -76,12 +72,36 @@ df['month_cos'] = np.cos(2 * np.pi * df['month']/12)
 df['month_sin'] = np.sin(2 * np.pi * df['month']/12)
 df['day_cos'] = np.cos(2 * np.pi * df['day']/12)
 df['day_sin'] = np.sin(2 * np.pi * df['day']/12)
+# df['season'] = pd.to_datetime(df['date']).dt.month.apply(get_season)
+# df['days_since_first_sale'] = (pd.to_datetime(df['date']) - df.groupby('unique_id')['date'].transform('min')).dt.days
+
+# ##########################################
+# df.sort_values(['unique_id', 'date'], inplace=True)
+
+# # Rolling Average Price (Last 2 Days) with fallback to Window=1
+# df['rolling_avg_price'] = (
+#     df.groupby('unique_id')['sell_price_main']
+#     .transform(lambda x: x.rolling(window=2).mean())
+#     .fillna(df['sell_price_main'])  # Fill NaN with Window=1 (current value)
+# )
+
+# # Rolling Total Orders (Last 2 Days) with fallback to Window=1
+# df['rolling_total_orders'] = (
+#     df.groupby('unique_id')['total_orders']
+#     .transform(lambda x: x.rolling(window=2).sum())
+#     .fillna(df['total_orders'])  # Fill NaN with Window=1 (current value)
+# )
+
+# # Cumulative Total Orders
+# df['cumulative_total_orders'] = df.groupby('unique_id')['total_orders'].cumsum()
+
+# # Create a lagged feature for sell_price
+# df.sort_values(['unique_id', 'date'], inplace=True)
+# df['lag_final_price'] = df.groupby('unique_id')['final_price'].shift(1)
+# df['lag_final_price'].fillna(0, inplace=True)  # Replace NaNs with 0 or another default value
 
 df.drop('date', axis=1, inplace=True)
 
-
-# df_calender['warehouse_city'] = df_calender['warehouse'].str.split('_').str[-1]
-# df_calender['warehouse_number'] = pd.to_numeric(df_calender['warehouse_number'])
 df_calender['date'] = pd.to_datetime(df_calender['date'], format="mixed", dayfirst=True)
 df_calender['day'] = df_calender['date'].dt.day
 df_calender['month'] = df_calender['date'].dt.month
@@ -94,7 +114,6 @@ df = pd.merge(df, df_word2vec, on=["name_only"], how='left')
 df.drop('name_only', axis=1, inplace=True)
 
 df = pd.get_dummies(df, columns=['L1_category_name_en'])
-# df['warehouse'] = encoder.fit_transform(df['warehouse'])
 
 
 ##### to remove
