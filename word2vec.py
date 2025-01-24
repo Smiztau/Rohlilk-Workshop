@@ -9,7 +9,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Load your corpus (the .txt file)
-with open("corpus.txt", "r", encoding="utf-8") as file:
+with open("curr_corpus.txt", "r", encoding="utf-8") as file:
     text = file.read()
 
 text = text.lower()
@@ -41,7 +41,9 @@ items_dict_plural = {}
 # Step 3: Loop through each item in the list
 for item in items:
     # Clean the item: lowercase and remove spaces or underscores
-    cleaned_item = item.lower().replace(" ", "").replace("_", "")
+    dirty_item = item.lower()
+    cleaned_item = item.lower().replace(" ", "").replace("_", "").replace("'","")
+    text = text.replace(dirty_item, cleaned_item)
     
     # Step 4: Convert the cleaned item to its plural form
     # Basic pluralization logic (you can use libraries for better pluralization handling)
@@ -64,9 +66,9 @@ text.replace("doughnut", "donut")
 text.replace("peach", "nectarine")
 text.replace("kiwifruit", "kiwi")
 text.replace("hamburger", "burger")
-text.replace("bok choy", "pak choi")
-text.replace("lychee","Litchi")
-text.replace("Valeriana locusta", "lamb lettuce")
+text.replace("bok choy", "pakchoi")
+text.replace("lychee","litchi")
+text.replace("valeriana locusta", "lamblettuce")
 
 
 # Tokenize the text into sentences
@@ -90,13 +92,15 @@ model = Word2Vec(processed_sentences, vector_size=2, window=5, min_count=1, sg=0
 
 
 # Create dictionary with keys and values as lowercase letters only, and no spaces or underscores
-items_dict = {item: item.lower().replace(" ", "").replace("_", "") for item in items}
+items_dict = {item: item.lower().replace(" ", "").replace("_", "").replace("'","") for item in items}
 
 items_dict["Mix meat"] = "meat"
 items_dict["Toust"] = "toast"
 items_dict["Breadcrumbs"] = "breadcrumb"
 items_dict["Pappudia"] = "salmon"
 items_dict["Plaintain"] = "banana"
+items_dict["Parsley Root"] = "parsley"
+items_dict["Lamb's lettuce"] = "lettuce"
 
 data_to_write = []
 
