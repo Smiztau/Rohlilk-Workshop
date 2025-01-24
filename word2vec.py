@@ -9,7 +9,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Load your corpus (the .txt file)
-with open("only_second_corpus.txt", "r", encoding="utf-8") as file:
+with open("curr_corpus2.txt", "r", encoding="utf-8") as file:
     text = file.read()
 
 text = text.lower()
@@ -88,7 +88,7 @@ processed_sentences = [preprocess_sentence(sentence) for sentence in sentences]
 
 # Train a word2vec model
 print("start word to vec")
-model = Word2Vec(processed_sentences, vector_size=2, window=5, min_count=1, sg=0)
+model = Word2Vec(processed_sentences, vector_size=5, window=5, min_count=1, sg=0)
 
 
 # Create dictionary with keys and values as lowercase letters only, and no spaces or underscores
@@ -112,18 +112,18 @@ for key, value in items_dict.items():
         # Take the first 2 components of the embedding
         # You can change this depending on the size of the embeddings (default 100 dimensions)
         # Prepare row data (original name, first 2 components of the embedding)
-        data_to_write.append([key, embedding[0], embedding[1]])
+        data_to_write.append([key, embedding[0], embedding[1],embedding[2], embedding[3],embedding[4]])
     except KeyError:
         print(f"Embedding for '{value}' not found in the model!")
 
 # Write data to CSV
-output_csv = 'csv_junk/food_embeddings.csv'
+output_csv = 'csv_junk/food_embeddings_5.csv'
 
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     
     # Write the header row
-    writer.writerow(['name_only', 'Embedding Component 1', 'Embedding Component 2'])
+    writer.writerow(['name_only', 'Embedding Component 1', 'Embedding Component 2', 'Embedding Component 3', 'Embedding Component 4', 'Embedding Component 5'])
     
     # Write the data
     writer.writerows(data_to_write)
