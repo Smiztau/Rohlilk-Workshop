@@ -22,6 +22,7 @@ df_sales = pd.read_csv(input_folder+"/"+fileName)
 df_inventory = pd.read_csv(input_folder+'/inventory.csv')
 df_calender = pd.read_csv(input_folder+'/calendar.csv')
 df_weights = pd.read_csv(input_folder+'/test_weights.csv')
+df_word2vec = pd.read_csv(output_folder+'/food_embeddings.csv')
 
 # df_calender['holiday_name'].fillna("-", inplace = True)
 df_inventory.drop('warehouse', axis=1, inplace=True)
@@ -40,7 +41,7 @@ df['warehouse_city'] = df['warehouse'].str.split('_').str[-1]
 df[['name_only', 'name_number']] = df['name'].str.split('_', expand=True)
 df.drop('name', axis=1, inplace=True)
 df['name_number'] = pd.to_numeric(df['name_number'])
-df['name_only'] = encoder.fit_transform(df['name_only'])
+# df['name_only'] = encoder.fit_transform(df['name_only'])
 # df['L1_category_name_en'] = encoder.fit_transform(df['L1_category_name_en'])
 df['L2_category_name_en'] = df['L2_category_name_en'].str.split('_').str[-1]
 df['L2_category_name_en'] = pd.to_numeric(df['L2_category_name_en'])
@@ -88,6 +89,9 @@ df_calender['year'] = df_calender['date'].dt.year
 df_calender.drop('date', axis=1, inplace=True)
 df_calender['is_holiday'] = (df_calender['holiday'] | df_calender['winter_school_holidays'] | df_calender['school_holidays']).astype(int)
 df = pd.merge(df, df_calender, on=['day', 'month', 'year','warehouse'], how='left')
+
+df = pd.merge(df, df_word2vec, on=["name_only"])
+df.drop('name_only', axis=1, inplace=True)
 
 df = pd.get_dummies(df, columns=['warehouse_city', 'L1_category_name_en'])
 df['warehouse'] = encoder.fit_transform(df['warehouse'])
