@@ -17,7 +17,7 @@ text = ''.join([char if char.isalpha() or char == ' ' or char == '\n' else ' ' f
 
 items = [
     "Pastry", "Herb", "Beet", "Chicken", "Chicory", "Donut", "Salmon", "Physalis", "Grape", "Apple", 
-    "Cabbage", "Pumpkin", "Mango", "Pepper", "Bread", "Toust", "Bell Pepper", "Tortilla", "Tomato", "Waffle", 
+    "Cabbage", "Pumpkin", "Mango", "Pepper", "Bread", "Toust", "Bell pepper", "Tortilla", "Tomato", "Waffle", 
     "Celery", "Plum", "Beef", "Nectarine", "Roll", "Blueberry", "Carrot", "Pear", "Croissant", "Date", "Biscuit", 
     "Salad", "Potato", "Cucumber", "Sweet Potato", "Orange", "Pea", "Onion", "Turkey", "Avocado", "Tulip", "Corn", 
     "Pineapple", "Spinach", "Eggplant", "Lettuce", "Strawberry", "Mandarin", "Parsley", "Pork", "Pappudia", "Basil", 
@@ -31,7 +31,7 @@ items = [
     "Chestnut", "Cornmeal", "Flower", "Squash", "Chrysanthemum", "Currant", "Juice", "Milling", "Sprout", "Kale", "Easter decoration", 
     "Soup", "Cream", "Yogurt", "Duck", "Plant meat", "Litchi", "Granadilla", "Cheese", "Plant", "Cactus", "Cereal", "Gooseberry", 
     "Rice Cake", "Pepperoni", "Focaccia", "Pizza", "Hot Dog", "Rambutan", "Burger", "Grain", "Panini", "Mangosteen", "Satsuma", 
-    "Bakery", "Pasta", "Chard", "Parsley Root", "Cress", "Celeriac", "Dessert", "Soil", "Endive", "Lambs lettuce", "Soybean sprout", 
+    "Bakery", "Pasta", "Chard", "Parsley Root", "Cress", "Celeriac", "Dessert", "Soil", "Endive", "Lamb's lettuce", "Soybean sprout", 
     "Lucki", "Surimi"
 ]
 
@@ -48,7 +48,7 @@ for item in items:
     # Handle some basic cases like "chicken" to "chickens"
     if cleaned_item[-1] == 'y':
         plural_item = cleaned_item[:-1] + 'ies'  # Change "cherry" to "cherries"
-    elif cleaned_item.endswith('s') or cleaned_item in ['breadcrumb', 'bread', 'fruit', 'scarf', 'mangosteen', 'soybeansprout']:
+    elif cleaned_item.endswith('s') or cleaned_item in ['bread', 'fruit', 'scarf']:
         plural_item = cleaned_item  # If it already ends in 's', keep it (e.g. "scarf" stays "scarfs")
     else:
         plural_item = cleaned_item + 's'  # Add 's' for regular plural forms
@@ -58,7 +58,16 @@ for item in items:
 
 for plural, singular in items_dict_plural.items():
         # Replace plural with singular, ensuring correct case
-        text = text.replace(plural, singular)
+        text = text.replace(plural+" ", singular+" ")
+
+text.replace("doughnut", "donut")
+text.replace("peach", "nectarine")
+text.replace("kiwifruit", "kiwi")
+text.replace("hamburger", "burger")
+text.replace("bok choy", "pak choi")
+text.replace("lychee","Litchi")
+text.replace("Valeriana locusta", "lamb lettuce")
+
 
 # Tokenize the text into sentences
 sentences = text.splitlines()
@@ -84,9 +93,11 @@ model = Word2Vec(processed_sentences, vector_size=2, window=5, min_count=1, sg=0
 items_dict = {item: item.lower().replace(" ", "").replace("_", "") for item in items}
 
 items_dict["Mix meat"] = "meat"
-items_dict["Mangosteen"] = "mangoteen"
-items_dict["Soybean sprout"] = "soybeanprout"
 items_dict["Toust"] = "toast"
+items_dict["Breadcrumbs"] = "breadcrumb"
+items_dict["Pappudia"] = "salmon"
+items_dict["Plaintain"] = "banana"
+
 data_to_write = []
 
 for key, value in items_dict.items():
@@ -96,10 +107,8 @@ for key, value in items_dict.items():
         
         # Take the first 2 components of the embedding
         # You can change this depending on the size of the embeddings (default 100 dimensions)
-        embedding_first_2 = embedding[:2]
-        
         # Prepare row data (original name, first 2 components of the embedding)
-        data_to_write.append([key, embedding_first_2[0], embedding_first_2[1]])
+        data_to_write.append([key, embedding[0], embedding[1]])
     except KeyError:
         print(f"Embedding for '{value}' not found in the model!")
 
