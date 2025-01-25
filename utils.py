@@ -1,6 +1,19 @@
+import pandas as pd
+import numpy as np
+
 depth = 15
 max_iter = 150
-
+merged_data_train = "csv_junk/merged_data_train.csv"
+merged_data_test = "csv_junk/merged_data_test.csv"
+sales_train = "csv_input/sales_train.csv"
+sales_test = "csv_input/sales_test.csv"
+inventory = "csv_input/inventory.csv"
+weights = "csv_input/test_weights.csv"
+calendar = "csv_junk/calendar_enriched.csv"
+food_embedings = "csv_junk/food_embeddings.csv"
+labels_csv="csv_input/train_labels.csv"
+csv_junk = "csv_junk"
+rolling = 'csv_junk/rolling.csv'
 
 def get_train_val_masks(X, train_end, val_start, val_end):
     """
@@ -55,3 +68,36 @@ def get_season(month):
         return 3
     else:
         return 4
+    
+def calculate_previous_month_avg(group):
+    group['prev_month_avg_sales'] = None  # Initialize the column
+
+    for i, row in group.iterrows():
+        # Get the year and month of the current row
+        current_year = row['year']
+        current_month = row['month']
+
+        # Determine the previous month and year
+        if current_month == 1:  # Handle January (previous month is December of the previous year)
+            prev_month = 12
+            prev_year = current_year - 1
+        else:   
+            prev_month = current_month - 1
+            prev_year = current_year
+
+        # Calculate the average sales in the previous month
+        prev_month_data = group[
+            (group['year'] == prev_year) & (group['month'] == prev_month) & (group['sales'].notnull())
+        ]
+
+        avg_sales = prev_month_data['sales'].mean() if not prev_month_data.empty else 0
+        group.at[i, 'prev_month_avg_sales'] = avg_sales  # Assign the calculated value
+
+    return group
+
+
+def shift_to_next_month(row):
+    if row['month'] == 12:  # If January, go to December of the previous year
+        return pd.Series({'month': 1, 'year': row['year'] + 1})
+    else:  # Otherwise, simply decrement the month
+        return pd.Series({'month': row['month'] + 1, 'year': row['year']})
