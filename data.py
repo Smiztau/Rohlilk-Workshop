@@ -21,7 +21,7 @@ encoder = LabelEncoder()
 # Load CSV file
 df_sales = pd.read_csv(input_folder+"/"+fileName)
 df_inventory = pd.read_csv(input_folder+'/inventory.csv')
-df_calender = pd.read_csv(input_folder+'/calendar.csv')
+df_calender = pd.read_csv(output_folder+'/calendar_enriched.csv')
 df_weights = pd.read_csv(input_folder+'/test_weights.csv')
 df_word2vec = pd.read_csv(output_folder+'/food_embeddings.csv')
 
@@ -75,7 +75,7 @@ df['day_sin'] = np.sin(2 * np.pi * df['day']/12)
 # df['days_since_first_sale'] = (pd.to_datetime(df['date']) - df.groupby('unique_id')['date'].transform('min')).dt.days
 
 # ##########################################
-df.sort_values(['unique_id', 'date'], inplace=True)
+#df.sort_values(['unique_id', 'date'], inplace=True)
 
 # # Rolling Average Price (Last 2 Days) with fallback to Window=1
 # df['rolling_avg_price'] = (
