@@ -134,6 +134,10 @@ full_data['avg_sales_unique_id_month'] = (
     full_data.groupby('unique_id', group_keys=False)['avg_sales_unique_id_month']
     .apply(lambda group: group.ffill())
 )
+full_data['avg_sales_unique_id_month'] = (
+    full_data.groupby('unique_id', group_keys=False)['avg_sales_unique_id_month']
+    .apply(lambda group: group.bfill())
+)
 
 df_combined = df_combined.merge(
     full_data,
