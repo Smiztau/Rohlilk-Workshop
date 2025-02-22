@@ -13,7 +13,7 @@ df_sales_test = pd.read_csv(sales_test)
 df_inventory = pd.read_csv(inventory)
 df_calender = pd.read_csv(calendar)
 df_weights = pd.read_csv(weights)
-df_word2vec = pd.read_csv(food_embedings)
+df_word2vec = pd.read_csv(food_embeddings)
 df_avg_sales_combined = pd.read_csv(rolling)
 
 labels = df_sales_train["sales"]

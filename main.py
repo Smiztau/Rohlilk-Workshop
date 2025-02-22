@@ -1,39 +1,48 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox
+import subprocess
 
-def toggle_check(event):
-    item_id = tree.identify_row(event.y)
-    if not item_id:
-        return
+# Function to execute the selected scripts
+def run_scripts():
+    commands = []
     
-    current_value = tree.item(item_id, 'values')[1]
-    new_value = "V" if current_value != "V" else "X"
+    # If "Calculate Data" is checked, run script.py
+    if calculate_data_var.get():
+        commands.append(["python", "data.py"])
     
-    tree.item(item_id, values=(tree.item(item_id, 'values')[0], new_value))
-
-def run_code():
-    print("hello world")
+    # If "Test" is checked, run test_by_warehouse.py
+    if test_var.get():
+        commands.append(["python", "test_by_warehouse.py"])
+    
+    # Execute the selected commands
+    for command in commands:
+        try:
+            subprocess.run(command, check=True)
+            messagebox.showinfo("Success", f"{command[1]} executed successfully!")
+        except subprocess.CalledProcessError:
+            messagebox.showerror("Error", f"Failed to execute {command[1]}")
 
 # Create main window
 root = tk.Tk()
-root.title("Task Selection")
+root.title("Data Processing & Testing")
+root.geometry("400x300")
 
-# Create table
-columns = ("Task", "Select")
-tree = ttk.Treeview(root, columns=columns, show="headings")
-tree.heading("Task", text="Task")
-tree.heading("Select", text="Select")
+# Title Label
+tk.Label(root, text="Select Actions to Perform", font=("Arial", 14)).pack(pady=10)
 
-tasks = ["Train with rolling avg", "Train without rolling avg", "Train by warehouse", "Train by uniqueIds"]
-for task in tasks:
-    tree.insert("", tk.END, values=(task, "X"))  # Default unchecked
+# Checkboxes
+calculate_data_var = tk.BooleanVar()
+test_var = tk.BooleanVar()
 
-tree.bind("<Button-1>", toggle_check)
+calculate_checkbox = tk.Checkbutton(root, text="Calculate Data", variable=calculate_data_var)
+calculate_checkbox.pack(anchor="w", padx=20)
 
-tree.pack(expand=True, fill=tk.BOTH)
+test_checkbox = tk.Checkbutton(root, text="Test", variable=test_var)
+test_checkbox.pack(anchor="w", padx=20)
 
-# Create button to run code
-run_button = tk.Button(root, text="Run", command=run_code)
-run_button.pack(pady=10)
+# Run Button
+run_button = tk.Button(root, text="Run", command=run_scripts, font=("Arial", 12))
+run_button.pack(pady=20)
 
+# Start GUI
 root.mainloop()

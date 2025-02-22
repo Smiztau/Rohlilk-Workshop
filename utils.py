@@ -3,17 +3,17 @@ import numpy as np
 
 depth = 15
 max_iter = 150
-merged_data_train = "csv_junk/merged_data_train.csv"
-merged_data_test = "csv_junk/merged_data_test.csv"
-sales_train = "csv_input/sales_train.csv"
-sales_test = "csv_input/sales_test.csv"
-inventory = "csv_input/inventory.csv"
-weights = "csv_input/test_weights.csv"
-calendar = "csv_junk/calendar_enriched.csv"
-food_embedings = "csv_junk/food_embeddings.csv"
-labels_csv="csv_input/train_labels.csv"
-csv_junk = "csv_junk"
-rolling = 'csv_junk/rolling.csv'
+merged_data_train = "csv/csv_junk/merged_data_train.csv"
+merged_data_test = "csv/csv_junk/merged_data_test.csv"
+sales_train = "csv/csv_input/sales_train.csv"
+sales_test = "csv/csv_input/sales_test.csv"
+inventory = "csv/csv_input/inventory.csv"
+weights = "csv/csv_input/test_weights.csv"
+calendar = "csv/csv_junk/calendar_enriched.csv"
+food_embeddings = "csv/csv_junk/food_embeddings.csv"
+train_labels="csv/csv_input/train_labels.csv"
+csv_junk = "csv/csv_junk"
+rolling = 'csv/csv_junk/rolling.csv'
 
 def get_train_val_masks(X, train_end, val_start, val_end):
     """
