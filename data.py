@@ -62,9 +62,6 @@ def process_data(df_sales, is_train):
     if args.rolling_avg:
         df['rolling_avg'] = df['sales'].rolling(window=7, min_periods=1).mean()
 
-    if is_train == False:
-        df = pd.merge(df, df_availabilities, on=['unique_id', 'day', 'month', 'year'], how='left')
-        
     df.drop('date', axis=1, inplace=True)
 
     # Merge calendar data
