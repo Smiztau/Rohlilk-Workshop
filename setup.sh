@@ -9,6 +9,9 @@ sudo apt install -y python3 python3-pip
 # Upgrade pip
 pip3 install --upgrade pip
 
+# Upgrade setuptools
+pip3 install --upgrade setuptools
+
 # Install Python libraries
 pip3 install \
     streamlit \
