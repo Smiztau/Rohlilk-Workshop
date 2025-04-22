@@ -4,11 +4,12 @@ Setup Instructions
 
 _Step 0: Get the data from kaggle_
 Go to this website: https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/data
-Enter with user, click late submit, and then click Download All button to download the data.
-Unzip the rohlik-orders-forecasting-challenge dir do as follows:
-In youre local repo/clone, make a dir called: csv
-In csv make a dir called csv_input
-Copy all content of rohlik-orders-forecasting-challenge to csv_input
+Enter with user, click "Late Submit", and then click "Download All" button to download the data.
+do as follows:
+1.Unzip the rohlik-orders-forecasting-challenge dir.
+2.In youre local repo/clone, make a dir called: csv
+3.In csv make a dir called csv_input
+4.Copy all content of rohlik-orders-forecasting-challenge to csv_input
 
 
 _Step 1: Grant Execution Permission_
