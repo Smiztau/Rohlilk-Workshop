@@ -1,53 +1,45 @@
-This project includes a file.sh script that installs all necessary dependencies and a main.py file that runs the program with the option to configure it on the fly.
+This project includes a setup.sh script that installs all necessary dependencies and a main.py file that runs the program with the option to configure it on the fly.
 
 Setup Instructions
 
-Step 1: Grant Execution Permission
+_Step 0: Get the data from kaggle_
+Go to this website: https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/data
+Enter with user, click late submit, and then click Download All button to download the data.
+Unzip the rohlik-orders-forecasting-challenge dir do as follows:
+In youre local repo/clone, make a dir called: csv
+In csv make a dir called csv_input
+Copy all content of rohlik-orders-forecasting-challenge to csv_input
 
-    Before running the script, give it execution permission:
 
-    chmod +x file.sh
+_Step 1: Grant Execution Permission_
 
-Step 2: Run the Installation Script
+Before running the script, give it execution permission:
+chmod +x setup.sh
 
-    Execute the script to install all required dependencies:
+_Step 2: Run the Installation Script_
 
-    ./file.sh
+Execute the script to install all required dependencies:
+./setup.sh
 
-    This will:
+This will:
+Update the package lists.
+Install Python and required system dependencies.
+Install Python libraries like xgboost, pandas, numpy, scikit-learn, matplotlib, nltk, gensim, and tsfresh.
+Download necessary NLTK dependencies.
 
-    Update the package lists.
+_Step 3: Run main_
+Once the dependencies are installed, run your Python program:
 
-    Install Python and required system dependencies.
-
-    Install Python libraries like xgboost, pandas, numpy, scikit-learn, matplotlib, nltk, gensim, and tsfresh.
-
-    Download necessary NLTK dependencies.
-
-Step 3: Run main.py
-
-    Once the dependencies are installed, run your Python program:
-
-    python3 main.py
-
-    If main.py has configurable options, you can pass them as arguments. For example:
-
-    python3 main.py --config config.json
+streamlit run main.py
 
 Notes
-
-    -Ensure you have Python 3 installed on your system.
-
-    -If any dependency fails, manually install it using pip3 install <package>.
+-Ensure you have Python 3 installed on your system.
+-If any dependency fails, manually install it using pip3 install <package>.
 
 Troubleshooting
-
-    If you encounter permission issues, run:
-
-    sudo chmod +x file.sh
-
-    If the script fails to run due to missing dependencies, try running it with sudo:
-
-    sudo ./file.sh
+If you encounter permission issues, run:
+sudo chmod +x setup.sh
+If the script fails to run due to missing dependencies, try running it with sudo:
+sudo ./setup.sh
 
 For any issues, check error messages and install missing packages manually.
