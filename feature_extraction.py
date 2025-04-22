@@ -30,7 +30,7 @@ def generate_tsfresh_features():
         "variance": None,
     }
 
-    fresh_work_features = ['total_orders', 'sell_price_main', 'max_discount', 'final_price']
+    fresh_work_features = ['unique_id', 'day', 'month', 'year', 'max_discount', 'final_price']
 
     # Read original datasets
     df_train = pd.read_csv(merged_data_train)
