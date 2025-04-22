@@ -21,6 +21,10 @@ df_train = pd.read_csv(merged_data_train)
 df_test = pd.read_csv(merged_data_test)
 df_availability = pd.read_csv(availabilities)
 
+# Warehouses one hot encoding
+df_train = pd.get_dummies(df_train, columns=["warehouse"])
+df_test = pd.get_dummies(df_test, columns=["warehouse"])
+
 # Prepare the feature set (X) and target (y)
 y = df_train['sales']
 sample_weights = df_train['weight']

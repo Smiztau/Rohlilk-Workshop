@@ -1,15 +1,7 @@
 import pandas as pd
 import numpy as np
-import argparse
 from sklearn.preprocessing import LabelEncoder
 from utils import *
-
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description="Process data based on selected options.")
-parser.add_argument("--rolling_avg", action="store_true", help="Use rolling average in training")
-parser.add_argument("--train_by_warehouse", action="store_true", help="Train by warehouse")
-parser.add_argument("--train_by_unique_ids", action="store_true", help="Train by unique IDs")
-args = parser.parse_args()
 
 # Load CSV files
 df_sales_train = pd.read_csv(sales_train)
@@ -58,10 +50,6 @@ def process_data(df_sales, is_train):
     df['sin_dayofyear'] = np.sin(2 * np.pi * df['day_of_year'] / 365)
     df['cos_dayofyear'] = np.cos(2 * np.pi * df['day_of_year'] / 365)
 
-    # Apply rolling average if selected
-    if args.rolling_avg:
-        df['rolling_avg'] = df['sales'].rolling(window=7, min_periods=1).mean()
-
     df.drop('date', axis=1, inplace=True)
 
     # Merge calendar data
@@ -73,13 +61,7 @@ def process_data(df_sales, is_train):
 
     # One-hot encode L1 categories
     df = pd.get_dummies(df, columns=['L1_category_name_en'])
-
-    # Train by warehouse or unique IDs if selected
-    # if args.train_by_warehouse:
-    #     df = df.groupby('warehouse').mean().reset_index()
-    # elif args.train_by_unique_ids:
-        # df = df.groupby('unique_id').mean().reset_index()
-
+    
     # Drop unwanted columns
     df.drop('holiday_name', axis=1, errors='ignore', inplace=True)
 
@@ -90,7 +72,7 @@ def process_data(df_sales, is_train):
     return df
 
 # Process train and test datasets
+print("Starting train data process")
 df_train_processed = process_data(df_sales_train, is_train=True)
+print("Starting test data process")
 df_test_processed = process_data(df_sales_test, is_train=False)
-
-print("<<<<<<<<<<<<<<<<<<<< FINISH PROCESSING BOTH TRAIN AND TEST DATA >>>>>>>>>>>>>>>>>>")

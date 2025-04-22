@@ -30,6 +30,7 @@ test_warehouse = df_test['warehouse']
 if use_availability:
     df_train = df_train.drop(['sales', 'weight'], axis=1)
     df_test = pd.merge(df_test, df_availability, on=["unique_id", "year", "month", "day"], how='left')
+    print("abacac")
 
 else:
     df_train = df_train.drop(['sales', 'weight', 'availability'], axis=1)

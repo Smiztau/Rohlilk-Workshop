@@ -9,7 +9,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import *
 
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
 # === Parse argument for availability option ===
 parser = argparse.ArgumentParser()
 parser.add_argument("--use-availability", type=str, default="false")
@@ -20,6 +19,11 @@ use_availability = args.use_availability.lower() == "true"
 df_train = pd.read_csv(merged_data_train)
 df_test = pd.read_csv(merged_data_test)
 df_availability = pd.read_csv(availabilities)
+
+# Warehouses one hot encoding
+df_train = pd.get_dummies(df_train, columns=["warehouse"])
+df_test = pd.get_dummies(df_test, columns=["warehouse"])
+
 
 # Prepare the feature set (X) and target (y)
 y = df_train['sales']
@@ -59,14 +63,15 @@ booster = xgb.train(params, dtrain, num_boost_round=max_iter, evals=evals, verbo
 y_pred_test = booster.predict(dtest)
 
 # Create an ID column for the test predictions
+
 test_ids = (
-    df_test.loc["unique_id"].astype(str)
+    df_test["unique_id"].astype(str)
     + "_"
-    + df_test.loc["year"].astype(str)
+    + df_test["year"].astype(str)
     + "-"
-    + df_test.loc["month"].astype(str).str.zfill(2)
+    + df_test["month"].astype(str).str.zfill(2)
     + "-"
-    + df_test.loc["day"].astype(str).str.zfill(2)
+    + df_test["day"].astype(str).str.zfill(2)
 )
 
 predictions = pd.DataFrame({
