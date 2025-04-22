@@ -3,12 +3,18 @@ import subprocess
 import os
 
 def run_ui():
-
     calculate = st.checkbox("Calculate Data")
     predict = st.checkbox("Predict Availability")
     test = st.checkbox("Train model and predict test")
 
-    test_mode = st.radio("Test Mode:", ["With Calculated Availability", "Without Availability"])
+    # Only show options if "test" is checked
+    if test:
+        st.markdown("## Train & Test Configuration")
+        test_mode = st.checkbox("With Calculated Availability")
+        test_by_warehouse = st.checkbox("Test by Warehouse")
+    else:
+        test_mode = None
+        test_by_warehouse = False
 
     def run_command_live(label, command):
         st.write(f"▶️ **{label}**")
@@ -41,18 +47,19 @@ def run_ui():
         if test:
             flag = "--use-availability"
             value = "true" if test_mode == "With Calculated Availability" else "false"
-            run_command_live("Train model and predict test", ["python", "train_test_by_warehouse.py", flag, value])
+            script_path = "train_and_test/train_test_by_warehouse.py" if test_by_warehouse else "train_and_test/train_test.py"
+            run_command_live("Train model and predict test", ["python", script_path, flag, value])
 
         st.success("All selected steps completed ✅")
 
-
+# === Logo and Title ===
 st.logo("logos/logo.png", size="large")
 st.title("Data Processing & Predictions")
 
+# === Navigation buttons ===
 if "page" not in st.session_state:
     st.session_state.page = "About"
 
-# === Navigation buttons ===
 if st.sidebar.button("📘 About"):
     st.session_state.page = "About"
 if st.sidebar.button("⚙️ Run Scripts"):
@@ -60,7 +67,6 @@ if st.sidebar.button("⚙️ Run Scripts"):
 
 # === Page content ===
 if st.session_state.page == "About":
-    st.title("📘 Project Overview")
     if os.path.exists("README.md"):
         with open("README.md", "r", encoding="utf-8") as f:
             readme_text = f.read()
