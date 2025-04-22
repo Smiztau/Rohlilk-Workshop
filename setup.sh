@@ -12,7 +12,6 @@ pip3 install --upgrade pip
 # Install Python libraries
 pip3 install \
     streamlit \
-    subprocess \
     xgboost \
     pandas \
     numpy \
