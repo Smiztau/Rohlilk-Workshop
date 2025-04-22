@@ -69,19 +69,18 @@ test_ids = (
     + df_test.loc["day"].astype(str).str.zfill(2)
 )
 
-# Create a DataFrame for the current warehouse's predictions
-warehouse_predictions = pd.DataFrame({
-    "id": test_ids,  # Unique IDs for the current warehouse
+predictions = pd.DataFrame({
+    "id": test_ids,  # Unique IDs
     "sales_hat": y_pred_test  # Predicted sales
 })
 
 # Append to the list of all predictions
-all_predictions.append(warehouse_predictions)
+all_predictions.append(predictions)
 
 # # Save the model
 # booster.save_model(f"models/xgboost_model_{current_time}.json")
 
-final_submission = warehouse_predictions
+final_submission = predictions
 
 # Save the final submission to a single CSV file
 final_submission.to_csv(f"submissions/submission-{current_time}.csv", index=False)
