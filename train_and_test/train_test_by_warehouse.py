@@ -2,7 +2,13 @@ import xgboost as xgb
 import pandas as pd
 from datetime import datetime
 import argparse
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from utils import *
+
+current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 # === Parse argument for availability option ===
 parser = argparse.ArgumentParser()
@@ -82,14 +88,12 @@ for warehouse in warehouses:
     # Append to the list of all predictions
     all_predictions.append(warehouse_predictions)
 
-    # Save the model for the current warehouse
-    booster.save_model(f"models/xgboost_model_warehouse_{warehouse}.json")
-    print(f"Completed predictions and model saving for warehouse {warehouse}.")
+    # # Save the model for the current warehouse
+    # booster.save_model(f"models/xgboost_model_warehouse_{warehouse}_{current_time}.json")
 
 # Combine all predictions into a single DataFrame
 final_submission = pd.concat(all_predictions, ignore_index=True)
 
 
 # Save the final submission to a single CSV file
-current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 final_submission.to_csv(f"submissions/submission-{current_time}.csv", index=False)

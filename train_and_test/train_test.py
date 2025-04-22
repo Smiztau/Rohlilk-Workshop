@@ -2,6 +2,10 @@ import xgboost as xgb
 import pandas as pd
 from datetime import datetime
 import argparse
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from utils import *
 
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
