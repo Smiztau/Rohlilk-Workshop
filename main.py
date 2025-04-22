@@ -1,6 +1,7 @@
 import streamlit as st
 import subprocess
 import os
+import sys
 
 def run_ui():
     calculate = st.checkbox("Calculate Data")
@@ -46,13 +47,13 @@ def run_ui():
 
     if st.button("Run Selected Scripts"):
         if calculate:
-            run_command_live("Calculate Data", ["python", "data.py"])
+            run_command_live("Calculate Data", [sys.executable, "data.py"])
 
             if use_tsfresh:
-                run_command_live("Generate TSFresh Features", ["python", "feature_extraction.py"])
+                run_command_live("Generate TSFresh Features", [sys.executable, "feature_extraction.py"])
 
         if predict:
-            run_command_live("Predict Availability", ["python", "calculate_availability.py"])
+            run_command_live("Predict Availability", [sys.executable, "calculate_availability.py"])
 
         if test:
             flag = "--use-availability"
@@ -65,7 +66,7 @@ def run_ui():
             else:
                 script_path = "train_and_test/train_test.py"
 
-            run_command_live("Train model and predict test", ["python", script_path, flag, value])
+            run_command_live("Train model and predict test", [sys.executable, script_path, flag, value])
 
         st.success("All selected steps completed ✅")
 
