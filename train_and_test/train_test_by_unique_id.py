@@ -24,9 +24,9 @@ df_availability = pd.read_csv(availabilities)
 # Prepare the feature set (X) and target (y)
 y = df_train['sales']
 sample_weights = df_train['weight']
-warehouses = df_test['warehouse'].unique()
-train_warehouse = df_train['warehouse']
-test_warehouse = df_test['warehouse']
+unique_ids = df_test['unique_id'].unique()
+train_unique_id = df_train['unique_id']
+test_unique_id = df_test['unique_id']
 if use_availability:
     df_train = df_train.drop(['sales', 'weight'], axis=1)
     df_test = pd.merge(df_test, df_availability, on=["unique_id", "year", "month", "day"], how='left')
@@ -43,25 +43,25 @@ params = {
 }
 
 all_predictions = []
-for warehouse in warehouses:
-    warehouse_train_mask = (train_warehouse == warehouse)
-    warehouse_test_mask = (test_warehouse == warehouse)
+for unique_id in unique_ids:
+    unique_id_train_mask = (train_unique_id == unique_id)
+    unique_id_test_mask = (test_unique_id == unique_id)
     
     # Subset your features, target, and weights accordingly
-    X_train = df_train[warehouse_train_mask].drop('warehouse', axis=1).copy()
-    y_train = y[warehouse_train_mask]
-    w_train = sample_weights[warehouse_train_mask]
-    X_test = df_test[warehouse_test_mask].drop('warehouse', axis=1).copy()
+    X_train = df_train[unique_id_train_mask].drop('unique_id', axis=1).copy()
+    y_train = y[unique_id_train_mask]
+    w_train = sample_weights[unique_id_train_mask]
+    X_test = df_test[unique_id_test_mask].drop('unique_id', axis=1).copy()
     X_test = X_test[X_train.columns]
 
     # Check if we have enough data to train and validate
     if X_train.shape[0] == 0 or X_test.shape[0] == 0:
-        print(f"Skipping warehouse {warehouse}.")
+        print(f"Skipping unique_id {unique_id}.")
         continue
     
     dtrain = xgb.DMatrix(X_train, label=y_train, weight=w_train)
     dtest = xgb.DMatrix(X_test)
-    evals = [(dtrain, f'train_{warehouse}')]
+    evals = [(dtrain, f'train_{unique_id}')]
 
     booster = xgb.train(params, dtrain, num_boost_round=max_iter, evals=evals, verbose_eval=True)
 
@@ -69,27 +69,27 @@ for warehouse in warehouses:
     y_pred_test = booster.predict(dtest)
     
     # Create an ID column for the test predictions
-    warehouse_test_ids = (
-        df_test.loc[warehouse_test_mask, "unique_id"].astype(str)
+    unique_id_test_ids = (
+        df_test.loc[unique_id_test_mask, "unique_id"].astype(str)
         + "_"
-        + df_test.loc[warehouse_test_mask, "year"].astype(str)
+        + df_test.loc[unique_id_test_mask, "year"].astype(str)
         + "-"
-        + df_test.loc[warehouse_test_mask, "month"].astype(str).str.zfill(2)
+        + df_test.loc[unique_id_test_mask, "month"].astype(str).str.zfill(2)
         + "-"
-        + df_test.loc[warehouse_test_mask, "day"].astype(str).str.zfill(2)
+        + df_test.loc[unique_id_test_mask, "day"].astype(str).str.zfill(2)
     )
 
-    # Create a DataFrame for the current warehouse's predictions
-    warehouse_predictions = pd.DataFrame({
-        "id": warehouse_test_ids,  # Unique IDs for the current warehouse
+    # Create a DataFrame for the current unique_id's predictions
+    unique_id_predictions = pd.DataFrame({
+        "id": unique_id_test_ids,  # Unique IDs for the current unique_id
         "sales_hat": y_pred_test  # Predicted sales
     })
 
     # Append to the list of all predictions
-    all_predictions.append(warehouse_predictions)
+    all_predictions.append(unique_id_predictions)
 
-    # # Save the model for the current warehouse
-    # booster.save_model(f"models/xgboost_model_warehouse_{warehouse}_{current_time}.json")
+    # # Save the model for the current unique_id
+    # booster.save_model(f"models/xgboost_model_unique_id_{unique_id}_{current_time}.json")
 
 # Combine all predictions into a single DataFrame
 final_submission = pd.concat(all_predictions, ignore_index=True)

@@ -2,6 +2,7 @@ import streamlit as st
 import subprocess
 import os
 
+
 def run_ui():
     calculate = st.checkbox("Calculate Data")
     predict = st.checkbox("Predict Availability")
@@ -11,10 +12,10 @@ def run_ui():
     if test:
         st.markdown("## Train & Test Configuration")
         test_mode = st.checkbox("With Calculated Availability")
-        test_by_warehouse = st.checkbox("Test by Warehouse")
+        test_by = st.radio("Split Data By", ["Without Split", "Test by Warehouse", "Test by Unique_id"])
     else:
         test_mode = None
-        test_by_warehouse = False
+        test_by = None
 
     def run_command_live(label, command):
         st.write(f"▶️ **{label}**")
@@ -42,15 +43,24 @@ def run_ui():
             run_command_live("Calculate Data", ["python", "data.py"])
 
         if predict:
-            run_command_live("Predict Availability", ["python", "availability_by_warehouse.py"])
+            run_command_live("Predict Availability", ["python", "calculate_availability.py.py"])
 
         if test:
             flag = "--use-availability"
-            value = "true" if test_mode == "With Calculated Availability" else "false"
-            script_path = "train_and_test/train_test_by_warehouse.py" if test_by_warehouse else "train_and_test/train_test.py"
+            value = "true" if test_mode else "false"
+
+            # Map selection to script paths
+            if test_by == "Test by Warehouse":
+                script_path = "train_and_test/train_test_by_warehouse.py"
+            elif test_by == "Test by Unique_id":
+                script_path = "train_and_test/train_test_by_id.py"
+            else:
+                script_path = "train_and_test/train_test.py"
+
             run_command_live("Train model and predict test", ["python", script_path, flag, value])
 
         st.success("All selected steps completed ✅")
+
 
 # === Logo and Title ===
 st.logo("logos/logo.png", size="large")
