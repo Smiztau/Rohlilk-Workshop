@@ -18,6 +18,7 @@ df_inventory = pd.read_csv(inventory)
 df_calendar = pd.read_csv(calendar)
 df_weights = pd.read_csv(weights)
 df_food_embeddings = pd.read_csv(food_embeddings)
+df_availabilities = pd.read_csv(availabilities)
 
 # Function to process data
 def process_data(df_sales, is_train):
@@ -28,8 +29,8 @@ def process_data(df_sales, is_train):
         labels.to_csv(train_labels, index=False)
         df = pd.merge(df, df_weights, on='unique_id', how='left')
         df = df.dropna(subset=['sales'])
-        df.drop('availability', axis=1, inplace=True)
-
+        df = df.dropna(subset=['availability'])
+        
     # Process categorical features
     df[['name_only', 'name_number']] = df['name'].str.split('_', expand=True)
     df.drop('name', axis=1, inplace=True)
@@ -61,6 +62,9 @@ def process_data(df_sales, is_train):
     if args.rolling_avg:
         df['rolling_avg'] = df['sales'].rolling(window=7, min_periods=1).mean()
 
+    if is_train == False:
+        df = pd.merge(df, df_availabilities, on=['unique_id', 'day', 'month', 'year'], how='left')
+        
     df.drop('date', axis=1, inplace=True)
 
     # Merge calendar data

@@ -1,17 +1,32 @@
 import xgboost as xgb
 import pandas as pd
 from datetime import datetime
+import argparse
 from utils import *
+
+# === Parse argument for availability option ===
+parser = argparse.ArgumentParser()
+parser.add_argument("--use-availability", type=str, default="false")
+args = parser.parse_args()
+use_availability = args.use_availability.lower() == "true"
 
 # Read the entire dataset
 df_train = pd.read_csv(merged_data_train)
 df_test = pd.read_csv(merged_data_test)
+df_availability = pd.read_csv(availabilities)
 
 # Prepare the feature set (X) and target (y)
-X = df_train.drop(['sales', 'weight'], axis=1)
 y = df_train['sales']
 sample_weights = df_train['weight']
 warehouses = df_test['warehouse'].unique()
+train_warehouse = df_train['warehouse']
+test_warehouse = df_test['warehouse']
+if use_availability:
+    df_train = df_train.drop(['sales', 'weight'], axis=1)
+    df_test = pd.merge(df_test, df_availability, on=["unique_id", "year", "month", "day"], how='left')
+
+else:
+    df_train = df_train.drop(['sales', 'weight', 'availability'], axis=1)
 
 # Set parameters for the models
 params = {
@@ -23,14 +38,15 @@ params = {
 
 all_predictions = []
 for warehouse in warehouses:
-    warehouse_train_mask = (X['warehouse'] == warehouse)
-    warehouse_test_mask = (df_test['warehouse'] == warehouse)
+    warehouse_train_mask = (train_warehouse == warehouse)
+    warehouse_test_mask = (test_warehouse == warehouse)
     
     # Subset your features, target, and weights accordingly
-    X_train = X[warehouse_train_mask].drop('warehouse', axis=1).copy()
+    X_train = df_train[warehouse_train_mask].drop('warehouse', axis=1).copy()
     y_train = y[warehouse_train_mask]
     w_train = sample_weights[warehouse_train_mask]
     X_test = df_test[warehouse_test_mask].drop('warehouse', axis=1).copy()
+    X_test = X_test[X_train.columns]
 
     # Check if we have enough data to train and validate
     if X_train.shape[0] == 0 or X_test.shape[0] == 0:

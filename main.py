@@ -1,48 +1,72 @@
-import tkinter as tk
-from tkinter import messagebox
+import streamlit as st
 import subprocess
+import os
 
-# Function to execute the selected scripts
-def run_scripts():
-    commands = []
-    
-    # If "Calculate Data" is checked, run script.py
-    if calculate_data_var.get():
-        commands.append(["python", "data.py"])
-    
-    # If "Test" is checked, run test_by_warehouse.py
-    if test_var.get():
-        commands.append(["python", "test_by_warehouse.py"])
-    
-    # Execute the selected commands
-    for command in commands:
-        try:
-            subprocess.run(command, check=True)
-            messagebox.showinfo("Success", f"{command[1]} executed successfully!")
-        except subprocess.CalledProcessError:
-            messagebox.showerror("Error", f"Failed to execute {command[1]}")
+def run_ui():
 
-# Create main window
-root = tk.Tk()
-root.title("Data Processing & Testing")
-root.geometry("400x300")
+    calculate = st.checkbox("Calculate Data")
+    predict = st.checkbox("Predict Availability")
+    test = st.checkbox("Train model and predict test")
 
-# Title Label
-tk.Label(root, text="Select Actions to Perform", font=("Arial", 14)).pack(pady=10)
+    test_mode = st.radio("Test Mode:", ["With Calculated Availability", "Without Availability"])
 
-# Checkboxes
-calculate_data_var = tk.BooleanVar()
-test_var = tk.BooleanVar()
+    def run_command_live(label, command):
+        st.write(f"▶️ **{label}**")
+        full_log = ""
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
 
-calculate_checkbox = tk.Checkbutton(root, text="Calculate Data", variable=calculate_data_var)
-calculate_checkbox.pack(anchor="w", padx=20)
+        with st.status(f"Running `{label}`...", expanded=True) as status_box:
+            log_output = st.empty()
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, text=True, env=env)
 
-test_checkbox = tk.Checkbutton(root, text="Test", variable=test_var)
-test_checkbox.pack(anchor="w", padx=20)
+            for line in process.stdout:
+                full_log += line
+                log_output.code(full_log, language="bash")
 
-# Run Button
-run_button = tk.Button(root, text="Run", command=run_scripts, font=("Arial", 12))
-run_button.pack(pady=20)
+            process.wait()
 
-# Start GUI
-root.mainloop()
+            if process.returncode == 0:
+                status_box.update(label=f"{label} completed ✅", state="complete")
+            else:
+                status_box.update(label=f"{label} failed ❌ (exit code {process.returncode})", state="error")
+
+    if st.button("Run Selected Scripts"):
+        if calculate:
+            run_command_live("Calculate Data", ["python", "data.py"])
+
+        if predict:
+            run_command_live("Predict Availability", ["python", "availability_by_warehouse.py"])
+
+        if test:
+            flag = "--use-availability"
+            value = "true" if test_mode == "With Calculated Availability" else "false"
+            run_command_live("Train model and predict test", ["python", "train_test_by_warehouse.py", flag, value])
+
+        st.success("All selected steps completed ✅")
+
+
+st.logo("logos/logo.png", size="large")
+st.title("Data Processing & Predictions")
+
+if "page" not in st.session_state:
+    st.session_state.page = "About"
+
+# === Navigation buttons ===
+if st.sidebar.button("📘 About"):
+    st.session_state.page = "About"
+if st.sidebar.button("⚙️ Run Scripts"):
+    st.session_state.page = "Scripts"
+
+# === Page content ===
+if st.session_state.page == "About":
+    st.title("📘 Project Overview")
+    if os.path.exists("README.md"):
+        with open("README.md", "r", encoding="utf-8") as f:
+            readme_text = f.read()
+        st.markdown(readme_text)
+    else:
+        st.warning("README.md file not found!")
+
+elif st.session_state.page == "Scripts":
+    run_ui()
