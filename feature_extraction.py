@@ -102,8 +102,8 @@ def generate_tsfresh_features():
     enriched_train = enriched_df[enriched_df["test"] == 0].drop(columns=["test"])
     enriched_test = enriched_df[enriched_df["test"] == 1].drop(columns=["test"])
 
-    enriched_train.to_csv(merged_data_train + "tsfresh", index=False)
-    enriched_test.to_csv(merged_data_test + "tsfresh", index=False)
+    enriched_train.to_csv(merged_data_train, index=False)
+    enriched_test.to_csv(merged_data_test, index=False)
 
 
 generate_tsfresh_features()
