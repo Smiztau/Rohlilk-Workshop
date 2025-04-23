@@ -16,6 +16,7 @@ csv_junk = "csv/csv_junk"
 rolling = 'csv/csv_junk/rolling.csv'
 availabilities = 'csv/csv_junk/availabilities.csv'
 
+# deprecated
 def get_train_val_masks(X, train_end, val_start, val_end):
     """
     Generate boolean masks for training and validation based on date cutoffs.
@@ -60,6 +61,7 @@ def get_train_val_masks(X, train_end, val_start, val_end):
     
     return train_mask, val_mask
 
+# deprecated
 def get_season(month):
     if month in [12, 1, 2]:
         return 1
